@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require 'aristotle'
+require_relative '../lib/aristotle'
 
 class TestLogic < Aristotle::Logic
   action /Go to a bar/ do |_|
@@ -16,6 +16,9 @@ class TestLogic < Aristotle::Logic
   end
   action /Return payload/ do |test_model|
     test_model.payload
+  end
+  action /STOP/ do |_|
+    "STOP"
   end
   condition /this won't match/ do |_|
     false
@@ -63,5 +66,11 @@ class AristotleTest < Minitest::Test
     assert_equal 'payload', test_logic.process('Test payload')
 
     assert_equal 'regexp', test_logic.process('Test condition regexp')
+
+    assert_equal 2, test_logic.process('Test multiple token condition')
+    assert_equal [3, 4], test_logic.process('Test multiple actions')
+    test_logic.chain_rules = :chain_rules
+    assert_equal [[5, 6], [7,8], [11, 12]], test_logic.process('Test valid chain')
+    assert_equal 13, test_logic.process('Test stoped chain')
   end
 end

@@ -7,45 +7,67 @@ module Aristotle
 
       raise 'Badly formatted line' if @action == '' || @condition == ''
 
-      conditions.each do |condition_regexp, condition_proc|
-        match_data = condition_regexp.match(@condition)
-        if match_data
-          @condition_proc = condition_proc
-          @condition_attributes = match_data.to_a[1..-1]
+      @action_tokens = @action.split(' and ').map(&:strip)
+      @condition_tokens = @condition.split(' and ').map(&:strip)
+
+      @condition_procs = []
+      @condition_attributes = []
+      @condition_tokens.each do |condition_token|
+        conditions.each do |condition_regexp, condition_proc|
+          match_data = condition_regexp.match(condition_token)
+          if match_data
+            @condition_procs << condition_proc
+            @condition_attributes << match_data.to_a[1..-1]
+          end
         end
       end
 
-      actions.each do |action_regexp, action_proc|
-        match_data = action_regexp.match(@action)
-        if match_data
-          @action_proc = action_proc
-          @action_attributes = match_data.to_a[1..-1]
+      @action_procs = []
+      @action_attributes = []
+      @action_tokens.each do |action_token|
+        actions.each do |action_regexp, action_proc|
+          match_data = action_regexp.match(action_token)
+          if match_data
+            @action_procs << action_proc
+            @action_attributes << match_data.to_a[1..-1]
+          end
         end
       end
     end
 
-    def do_action_with(object)
-      if @action_proc
-        @action_proc.call(object, *@action_attributes)
+    def do_action_with(object, sender)
+      unless @action_procs.empty?
+        results = []
+        @action_procs.each_with_index do |action, index|
+          results << action.call(object, *@action_attributes[index])
+        end
+        if results.last == sender.break_keyword
+          sender.break_chain = true
+          results.slice!(-1)
+        end
+        return results.length == 1 ? results.first : results
       else
-        raise "Action not found: #{@action}"
+        raise "No action defined"
       end
     end
 
     def condition_passes_with?(object)
-      if @condition_proc
-        @condition_proc.call(object, *@condition_attributes)
+      unless @condition_procs.empty?
+        @condition_procs.each_with_index do |condition, index|
+          result = condition.call(object, *@condition_attributes[index])
+          return false if result == false
+        end
       else
-        raise "Condition not found: #{@condition}"
+        raise "No condition defined"
       end
     end
 
     def has_action?
-      !@action_proc.nil?
+      !@action_procs.empty?
     end
 
     def has_condition?
-      !@condition_proc.nil?
+      !@condition_procs.empty?
     end
   end
 end

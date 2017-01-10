@@ -1,17 +1,29 @@
 module Aristotle
   class Logic
-    def initialize(object)
+    attr_reader :break_keyword
+    attr_accessor :chain_rules, :break_chain
+    def initialize(object, break_keyword = "STOP")
       @object = object
+      @chain = :break_on_first
+      @break_chain = false
+      @break_keyword = break_keyword
+    end
+
+    def chain_rules?
+      @chain_rules == :chain_rules
     end
 
     def process(logic_method)
+      results = []
       self.class.commands(logic_method).each do |command|
         next unless command.condition_passes_with?(@object)
 
-        return command.do_action_with(@object)
+        results << command.do_action_with(@object, self)
+        break unless (chain_rules? && !@break_chain)
       end
-
-      nil
+      @break_chain = false
+      return nil if results.empty?
+      return results.length == 1 ? results.first : results
     end
 
     def self.commands(logic_method = nil)

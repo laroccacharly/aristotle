@@ -1,4 +1,4 @@
-require 'aristotle/logic'
-require 'aristotle/utility'
-require 'aristotle/command'
-require 'aristotle/presenter'
+require_relative 'aristotle/logic'
+require_relative 'aristotle/utility'
+require_relative 'aristotle/command'
+require_relative 'aristotle/presenter'

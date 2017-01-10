@@ -23,3 +23,21 @@ Test payload
 
 Test condition regexp
   Return payload if this is a regexp condition
+
+Test multiple token condition
+  Return 1 if this matches and this won't match
+  Return 2 if this matches and this matches
+
+Test multiple actions
+  Return 3 and Return 4 if this matches
+
+# Enable chaining at this point in test
+Test valid chain
+  Return 5 and Return 6 if this matches
+  Return 7 and Return 8 if this matches
+  Return 9 and Return 10 if this won't match
+  Return 11 and Return 12 if this matches
+
+Test stoped chain
+  Return 13 and STOP if this matches
+  Return 14 if this matches
