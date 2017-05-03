@@ -2,11 +2,12 @@ module Aristotle
   class Logic
     attr_reader :break_keyword
     attr_accessor :chain_rules, :break_chain
-    def initialize(object, break_keyword = "STOP")
+    def initialize(object, break_keyword = "STOP", commands = [])
       @object = object
       @chain = :break_on_first
       @break_chain = false
       @break_keyword = break_keyword
+      self.class.load_commands(commands)
     end
 
     def chain_rules?
@@ -27,7 +28,6 @@ module Aristotle
     end
 
     def self.commands(logic_method = nil)
-      load_commands
       logic_method.nil? ? @commands : (@commands[logic_method] || [])
     end
 
@@ -43,7 +43,19 @@ module Aristotle
       @actions[expression] = block
     end
 
-    def self.load_commands
+    def self.load_commands(commands = [])
+      # If argument 'commands' present load from it else load from file
+      if commands.any?
+        @commands = []
+        commands.each do |command|
+          @commands << Aristotle::Command.new(command, @conditions || {}, @actions || {})
+        end
+      else
+        load_commands_from_file
+      end
+    end
+
+    def self.load_commands_from_file
       @commands ||= {}
 
       return if @commands != {}

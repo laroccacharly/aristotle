@@ -72,5 +72,16 @@ class AristotleTest < Minitest::Test
     test_logic.chain_rules = :chain_rules
     assert_equal [[5, 6], [7,8], [11, 12]], test_logic.process('Test valid chain')
     assert_equal 13, test_logic.process('Test stoped chain')
+
+
+    commands = ['Return 2 if this matches']
+    test_logic_with_commands = TestLogic.new(test_model, 'STOP', commands)
+    assert_equal 2, test_logic_with_commands.process(nil)
+
+
+    commands = ['Return 3 if this matches', 'Return 2 if this matches']
+    test_logic_with_commands = TestLogic.new(test_model, 'STOP', commands)
+    test_logic_with_commands.chain_rules = :chain_rules
+    assert_equal [3, 2], test_logic_with_commands.process(nil)
   end
 end
