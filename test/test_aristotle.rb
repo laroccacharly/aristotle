@@ -1,6 +1,6 @@
 require 'minitest/autorun'
 require_relative '../lib/aristotle'
-
+require 'byebug'
 class TestLogic < Aristotle::Logic
   action /Go to a bar/ do |_|
     false
