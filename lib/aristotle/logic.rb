@@ -45,6 +45,7 @@ module Aristotle
 
     def self.load_commands(commands = [])
       # If argument 'commands' present load from it else load from file
+      @commands = nil
       if commands.any?
         @commands = []
         commands.each do |command|
